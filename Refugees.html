@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weltkarte mit Flüchtlingsdaten</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="refugeesdata.js"></script>
+<script>
+    var map = L.map('map').setView([30, 0], 2); // Mittelpunkt der Karte und Zoom-Stufe
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        lang: 'en' // Setze die Sprache auf Englisch
+    }).addTo(map);
+
+    for (var country in refugees) {
+        var data = refugees[country];
+        data['Number of refugees'] = parseFloat(data['Number of refugees']); // Konvertierung in Zahl
+        data['Population'] = parseFloat(data['Population']); // Konvertierung in Zahl
+        var markerColor;
+        if (data['Number of refugees'] >= 1) {
+            markerColor = 'red';
+        } else if (data['Number of refugees'] >= 0.1) {
+            markerColor = 'orange';
+        } else {
+            markerColor = 'green';
+        }
+        var popupContent = "<b>" + country + "</b><br>Number of Refugees: " + (data['Number of refugees'] * 1000000).toLocaleString() + "<br>Population: " + data['Population'].toLocaleString() + "<br>As of Date: " + data['As of date'];
+        L.marker(data.coordinates, { icon: L.icon({ iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-' + markerColor + '.png' }) }).bindPopup(popupContent).addTo(map);
+    }
+</script>
+
+</body>
+</html>
